@@ -1,0 +1,1 @@
+import { Medication } from "@prisma/client";

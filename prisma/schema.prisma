@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model eVTOL {
+  id          Int          @id @default(autoincrement())
+  model       ModelType
+  weightLimit Float        @default(500.0)
+  battery     Int
+  state       State @default(IDLE)
+  serialNumber String @unique
+  medications Medication[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("evtol")
+}
+
+model Medication {
+  id        Int      @id @default(autoincrement())
+  name      String
+  weight    Float
+  code      String   @unique
+  evtolId   Int
+  createdAt DateTime @default(now())
+  eVTOL     eVTOL    @relation(fields: [evtolId], references: [id])
+  OrderItems OrderItems[]
+
+  @@map("medications")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  firstName String
+  lastName  String
+  password  String
+  // orders    Orders[]
+
+  @@map("users")
+  Orders Orders[]
+}
+
+model Orders {
+  id         Int          @id @default(autoincrement())
+  userId     Int
+  user       User         @relation(fields: [userId], references: [id])
+  orderDate  DateTime     @default(now())
+  OrderItems OrderItems[]
+
+  @@map("orders")
+}
+model OrderItems {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  medicationId Int
+  quantity  Int
+  order     Orders  @relation(fields: [orderId], references: [id])
+  medication   Medication @relation(fields: [medicationId], references: [id])
+}
+
+enum ModelType {
+  LIGHTWEIGHT
+  MIDDLEWEIGHT
+  CRUISERWEIGHT
+  HEAVYWEIGHT
+}
+
+enum State {
+  IDLE
+  LOADING
+  LOADED
+  DELIVERING
+  DELIVERED
+  RETURNING
+}
