@@ -14,28 +14,30 @@ datasource db {
 }
 
 model eVTOL {
-  id          Int          @id @default(autoincrement())
-  model       ModelType
-  weightLimit Float        @default(500.0)
-  battery     Int
-  state       State @default(IDLE)
-  serialNumber String @unique
-  medications Medication[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id           Int          @id @default(autoincrement())
+  model        ModelType
+  weightLimit  Float        @default(0)
+  battery      Int
+  state        State        @default(IDLE)
+  serialNumber String       @unique
+  medications  Medication[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   @@map("evtol")
 }
 
 model Medication {
-  id        Int      @id @default(autoincrement())
-  name      String
-  weight    Float
-  code      String   @unique
-  evtolId   Int
-  createdAt DateTime @default(now())
-  eVTOL     eVTOL    @relation(fields: [evtolId], references: [id])
+  id         Int          @id @default(autoincrement())
+  name       String
+  weight     Float
+  code       String       @unique @default(uuid())
+  evtolId    Int?
+  createdAt  DateTime     @default(now())
+  eVTOL      eVTOL?        @relation(fields: [evtolId], references: [id])
   OrderItems OrderItems[]
+  image      String?
+  quantity   Int?
 
   @@map("medications")
 }
@@ -46,10 +48,9 @@ model User {
   firstName String
   lastName  String
   password  String
-  // orders    Orders[]
+  Orders    Orders[]
 
   @@map("users")
-  Orders Orders[]
 }
 
 model Orders {
@@ -61,12 +62,13 @@ model Orders {
 
   @@map("orders")
 }
+
 model OrderItems {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
+  id           Int        @id @default(autoincrement())
+  orderId      Int
   medicationId Int
-  quantity  Int
-  order     Orders  @relation(fields: [orderId], references: [id])
+  quantity     Int
+  order        Orders     @relation(fields: [orderId], references: [id])
   medication   Medication @relation(fields: [medicationId], references: [id])
 }
 

@@ -8,7 +8,7 @@ import { generateSerialNumber } from "../../utils/generateSerialnumber.utils";
 
 export class eVTOLServicesImplementation implements evtolServices {
   async getAllEvtols(): Promise<eVTOL[]> {
-    return await db.eVTOL.findMany();
+    return db.eVTOL.findMany();
   }
   
   async loadEVTOL(id: number): Promise<string | null> {
@@ -49,7 +49,7 @@ export class eVTOLServicesImplementation implements evtolServices {
     });
     if (iseVTOL) {
       throw new CustomError(
-        StatusCodes.NOT_FOUND,
+        StatusCodes.CONFLICT,
         "evtol device already exists"
       );
     }

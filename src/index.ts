@@ -2,9 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { errorHandler } from "./utils/errorhandler.util";
-import evtolRoutes from "./routes/evtol.routes";
-import medicationRoutes from "./routes/medication.routes";
-import orderRoutes from "./routes/order.routes";
+import userRouter from "./routes/user.routes";
+// import evtolRoutes from "./routes/evtol.routes";
+// import medicationRoutes from "./routes/medication.routes";
+// import orderRoutes from "./routes/order.routes";
 
 dotenv.config();
 
@@ -33,12 +34,13 @@ app.use(cors(corsOption));
 
 app.use(express.json());
 
-app.use("/api/evtol", evtolRoutes);
-app.use("/api/medications", medicationRoutes);
-app.use("/api/orders", orderRoutes);
+// app.use("/api/v1/evtol", evtolRoutes);
+// app.use("/api/v1/medications", medicationRoutes);
+// app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/users", userRouter)
 
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
+  console.log(`Server is running on PORT ${PORT}`);
 });
