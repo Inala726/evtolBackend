@@ -3,38 +3,49 @@ import { MedicationImpl } from "../service/impl/medication.impl";
 import { RegisterMedicineDTO } from "../dtos/medications.dto";
 
 export class MedicationController {
-  private medicationService: MedicationImpl;
+  private service = new MedicationImpl();
 
-  constructor() {
-    this.medicationService = new MedicationImpl();
-  }
-
-  public registerMedicine = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  // 1. Register a new Medication
+  public registerMedicine = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const data = req.body as RegisterMedicineDTO;
-      const medicine = await this.medicationService.registerMedicine(data);
-      res.status(201).json(medicine);
-    } catch (error) {
-      next(error);
+      const dto = req.body as RegisterMedicineDTO;
+      const med = await this.service.registerMedicine(dto);
+      res.status(201).json(med);
+    } catch (err) {
+      next(err);
     }
   };
 
-  public getAllMedications = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  // 2. List all Medications
+  public getAllMedications = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const medicines = await this.medicationService.getAllMedications();
-      res.status(200).json(medicines);
-    } catch (error) {
-      next(error);
+      const list = await this.service.getAllMedications();
+      res.status(200).json(list);
+    } catch (err) {
+      next(err);
     }
   };
 
-  public getMedicationById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  // 3. Get one Medication by ID
+  public getMedicationById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const id = Number(req.params.id);
-      const medicine = await this.medicationService.getMedicationById(id);
-      res.status(200).json(medicine);
-    } catch (error) {
-      next(error);
+      const med = await this.service.getMedicationById(id);
+      res.status(200).json(med);
+    } catch (err) {
+      next(err);
     }
   };
 }
