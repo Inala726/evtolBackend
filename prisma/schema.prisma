@@ -1,8 +1,102 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// // This is your Prisma schema file,
+// // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model eVTOL {
+//   id           Int          @id @default(autoincrement())
+//   model        ModelType
+//   weightLimit  Float        @default(0)
+//   battery      Int
+//   state        State        @default(IDLE)
+//   serialNumber String       @unique
+//   medications  Medication[]
+//   createdAt    DateTime     @default(now())
+//   updatedAt    DateTime     @updatedAt
+//   image        String?
+
+//   @@map("evtol")
+// }
+
+// model Medication {
+//   id         Int          @id @default(autoincrement())
+//   name       String
+//   weight     Float
+//   code       String       @unique @default(uuid())
+//   evtolId    Int?
+//   createdAt  DateTime     @default(now())
+//   eVTOL      eVTOL?       @relation(fields: [evtolId], references: [id])
+//   OrderItems OrderItems[]
+//   image      String?
+//   quantity   Int?
+
+//   @@map("medications")
+// }
+
+// model User {
+//   id            Int       @id @default(autoincrement())
+//   email         String    @unique
+//   firstName     String
+//   lastName      String
+//   password      String
+//   otp           String?
+//   emailVerified Boolean   @default(false)
+//   otpExpiry     DateTime? @default(now())
+//   Orders        Orders[]
+//   role          Role      @default(USER)
+
+//   @@map("users")
+// }
+
+// model Orders {
+//   id         Int          @id @default(autoincrement())
+//   userId     Int
+//   user       User         @relation(fields: [userId], references: [id])
+//   orderDate  DateTime     @default(now())
+//   OrderItems OrderItems[]
+
+//   @@map("orders")
+// }
+
+// model OrderItems {
+//   id           Int        @id @default(autoincrement())
+//   orderId      Int
+//   medicationId Int
+//   quantity     Int
+//   order        Orders     @relation(fields: [orderId], references: [id])
+//   medication   Medication @relation(fields: [medicationId], references: [id])
+// }
+
+// enum ModelType {
+//   LIGHTWEIGHT
+//   MIDDLEWEIGHT
+//   CRUISERWEIGHT
+//   HEAVYWEIGHT
+// }
+
+// enum State {
+//   IDLE
+//   LOADING
+//   LOADED
+//   DELIVERING
+//   DELIVERED
+//   RETURNING
+// }
+
+// enum Role {
+//   USER
+//   ADMIN
+// }
 
 generator client {
   provider = "prisma-client-js"
@@ -15,61 +109,103 @@ datasource db {
 
 model eVTOL {
   id           Int          @id @default(autoincrement())
+  serialNumber String       @unique
   model        ModelType
-  weightLimit  Float        @default(0)
+  weightLimit  Float
   battery      Int
   state        State        @default(IDLE)
-  serialNumber String       @unique
-  medications  Medication[]
+  loads        eVTOLLoad[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+  image        String?
+  BatteryLog   BatteryLog[]
+  Dispatch     Dispatch[]
 
   @@map("evtol")
 }
 
+model eVTOLLoad {
+  id           Int        @id @default(autoincrement())
+  evtol        eVTOL      @relation(fields: [evtolId], references: [id])
+  evtolId      Int
+  medication   Medication @relation(fields: [medicationId], references: [id])
+  medicationId Int
+  quantity     Int
+  loadedAt     DateTime   @default(now())
+
+  @@map("evtol_loads")
+}
+
+model BatteryLog {
+  id        Int      @id @default(autoincrement())
+  evtol     eVTOL    @relation(fields: [evtolId], references: [id])
+  evtolId   Int
+  battery   Int
+  checkedAt DateTime @default(now())
+
+  @@map("battery_logs")
+}
+
 model Medication {
-  id         Int          @id @default(autoincrement())
-  name       String
-  weight     Float
-  code       String       @unique @default(uuid())
-  evtolId    Int?
-  createdAt  DateTime     @default(now())
-  eVTOL      eVTOL?        @relation(fields: [evtolId], references: [id])
-  OrderItems OrderItems[]
-  image      String?
-  quantity   Int?
+  id        Int         @id @default(autoincrement())
+  name      String
+  weight    Float
+  code      String      @unique
+  image     String?
+  quantity  Int?
+  loads     eVTOLLoad[]
+  createdAt DateTime    @default(now())
+  OrderItem OrderItem[]
 
   @@map("medications")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  firstName String
-  lastName  String
-  password  String
-  Orders    Orders[]
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  firstName     String
+  lastName      String
+  password      String
+  emailVerified Boolean   @default(false)
+  otp           String?
+  otpExpiry     DateTime?
+  orders        Order[]
+  role          Role      @default(USER)
 
   @@map("users")
 }
 
-model Orders {
-  id         Int          @id @default(autoincrement())
-  userId     Int
-  user       User         @relation(fields: [userId], references: [id])
-  orderDate  DateTime     @default(now())
-  OrderItems OrderItems[]
+model Order {
+  id        Int         @id @default(autoincrement())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
+  orderDate DateTime    @default(now())
+  items     OrderItem[]
+  dispatch  Dispatch?
 
   @@map("orders")
 }
 
-model OrderItems {
+model OrderItem {
   id           Int        @id @default(autoincrement())
+  order        Order      @relation(fields: [orderId], references: [id])
   orderId      Int
+  medication   Medication @relation(fields: [medicationId], references: [id])
   medicationId Int
   quantity     Int
-  order        Orders     @relation(fields: [orderId], references: [id])
-  medication   Medication @relation(fields: [medicationId], references: [id])
+
+  @@map("order_items")
+}
+
+model Dispatch {
+  id        Int      @id @default(autoincrement())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   Int      @unique
+  evtol     eVTOL    @relation(fields: [evtolId], references: [id])
+  evtolId   Int
+  createdAt DateTime @default(now())
+
+  @@map("dispatches")
 }
 
 enum ModelType {
@@ -86,4 +222,9 @@ enum State {
   DELIVERING
   DELIVERED
   RETURNING
+}
+
+enum Role {
+  USER
+  ADMIN
 }

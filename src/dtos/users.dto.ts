@@ -16,3 +16,35 @@ export class CreateUserDTO{
     @Length(6, 20)
     password!: string
 }
+
+export class LoginDTO{
+    @IsEmail()
+    email!: string;
+
+    @IsNotEmpty()
+    @IsString()
+    password!: string
+}
+
+export class VerifyEmailDTO {
+    @IsString()
+    @IsEmail()
+    email!: string;
+  
+    @IsNotEmpty()
+    @IsString()
+    @Length(6, 6)
+    otp!: string;
+  }
+  
+  export class EmailOtpDTO{
+    @IsString()
+    @IsEmail()
+    email!: string;
+  
+    @IsNotEmpty()
+    @IsString()
+    @Length(6, 6)
+    phoneNumber!: string;
+  
+  }

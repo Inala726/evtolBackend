@@ -2,10 +2,12 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { errorHandler } from "./utils/errorhandler.util";
-import userRouter from "./routes/user.routes";
-// import evtolRoutes from "./routes/evtol.routes";
+// import userRouter from "./routes/user.routes";
+import evtolRoutes from "./routes/evtol.routes";
 // import medicationRoutes from "./routes/medication.routes";
 // import orderRoutes from "./routes/order.routes";
+import authRouter from "./routes/auth.routes";
+// import authRoutes from "./routes/auth.routes";
 
 dotenv.config();
 
@@ -34,11 +36,11 @@ app.use(cors(corsOption));
 
 app.use(express.json());
 
-// app.use("/api/v1/evtol", evtolRoutes);
-// app.use("/api/v1/medications", medicationRoutes);
-// app.use("/api/v1/orders", orderRoutes);
-app.use("/api/v1/users", userRouter)
-
+// app.use("/evtol/v1/device", evtolRoutes);
+// app.use("/evtol/v1/medications", medicationRoutes);
+// app.use("/evtol/v1/orders", orderRoutes);
+// app.use("/evtol/v1/users", userRouter)
+app.use("/evtol/v1/authentication", authRouter);
 app.use(errorHandler);
 
 app.listen(PORT, () => {

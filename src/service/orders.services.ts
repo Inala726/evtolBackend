@@ -1,8 +1,6 @@
-import { Orders } from "@prisma/client";
-import { createOrderDTO } from "../dtos/order.dto";
+import { Order } from "@prisma/client";
+import { PlaceOrderDto } from "../dtos/order.dto";
 
-export interface OrderServices{
-    createOrders(data:createOrderDTO):Promise<Orders>
-    getAllOrders():Promise<Orders[]>
-    getOrdersByID(id: number): Promise<Orders | null>
+export interface orderServices {
+  placeOrder(userId: number, dto: PlaceOrderDto): Promise<Order & { items: any[] }>;
 }

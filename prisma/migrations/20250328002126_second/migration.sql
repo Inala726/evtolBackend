@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "otpExpiry" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "role" TEXT;
