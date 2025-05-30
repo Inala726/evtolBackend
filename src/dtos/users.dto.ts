@@ -38,13 +38,12 @@ export class VerifyEmailDTO {
   }
   
   export class EmailOtpDTO{
-    @IsString()
     @IsEmail()
     email!: string;
   
     @IsNotEmpty()
     @IsString()
-    @Length(6, 6)
+    @Length(10, 11)
     phoneNumber!: string;
   
   }
