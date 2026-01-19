@@ -38,8 +38,16 @@ export class userServiceImplementation implements UserServices {
     return user;
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return await db.user.findMany();
+  async getAllUsers(skip?: number, take?: number): Promise<{ data: User[]; total: number }> {
+    const [users, total] = await Promise.all([
+      db.user.findMany({
+        skip: skip || 0,
+        take: take || 10,
+        orderBy: { id: "desc" },
+      }),
+      db.user.count(),
+    ]);
+    return { data: users, total };
   }
 
   async updateUser(id: number, data: Partial<CreateUserDTO>): Promise<User> {

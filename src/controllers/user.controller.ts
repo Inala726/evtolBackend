@@ -1,6 +1,10 @@
 import { Response, Request, NextFunction } from "express";
 import { userServiceImplementation } from "../service/impl/users.impl";
 import { CreateUserDTO } from "../dtos/users.dto";
+import {
+  PaginationQueryDto,
+  PaginatedResponseDto,
+} from "../dtos/pagination.dto";
 
 export class UserController {
   private userService: userServiceImplementation;
@@ -44,8 +48,21 @@ export class UserController {
     next: NextFunction
   ): Promise<void | any> => {
     try {
-      const users = await this.userService.getAllUsers();
-      res.status(200).json(users);
+      const pagination = new PaginationQueryDto(
+        req.query.page,
+        req.query.limit
+      );
+      const { data, total } = await this.userService.getAllUsers(
+        pagination.getSkip(),
+        pagination.limit
+      );
+      const response = new PaginatedResponseDto(
+        data,
+        pagination.page,
+        pagination.limit,
+        total
+      );
+      res.status(200).json(response);
     } catch (error) {
       next(error);
     }

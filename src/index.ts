@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
 import { errorHandler } from "./utils/errorhandler.util";
 // import userRouter from "./routes/user.routes";
 import evtolRoutes from "./routes/evtol.routes";
@@ -35,6 +37,9 @@ const corsOption = {
 app.use(cors(corsOption));
 
 app.use(express.json());
+
+// Swagger Documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
 
 // app.use("/evtol/v1/device", evtolRoutes);
 // app.use("/evtol/v1/medications", medicationRoutes);

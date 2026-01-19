@@ -28,8 +28,16 @@ export class MedicationImpl implements medicationServices {
     return medicine;
   }
 
-  async getAllMedications(): Promise<Medication[]> {
-    return db.medication.findMany();
+  async getAllMedications(skip?: number, take?: number): Promise<{ data: Medication[]; total: number }> {
+    const [medications, total] = await Promise.all([
+      db.medication.findMany({
+        skip: skip || 0,
+        take: take || 10,
+        orderBy: { id: "desc" },
+      }),
+      db.medication.count(),
+    ]);
+    return { data: medications, total };
   }
 
   async getMedicationById(id: number): Promise<Medication | null> {

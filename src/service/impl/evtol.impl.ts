@@ -79,14 +79,29 @@ import { LoadEVTOLDto } from "../../dtos/loadEvtol.dto";
 import { generateSerialNumber } from "../../utils/generateSerialnumber.utils";
 
 export class eVTOLServicesImplementation implements evtolServices {
-  async getAllEvtols(): Promise<eVTOL[]> {
-    return db.eVTOL.findMany();
+  async getAllEvtols(skip?: number, take?: number): Promise<{ data: eVTOL[]; total: number }> {
+    const [evtols, total] = await Promise.all([
+      db.eVTOL.findMany({
+        skip: skip || 0,
+        take: take || 10,
+        orderBy: { id: "desc" },
+      }),
+      db.eVTOL.count(),
+    ]);
+    return { data: evtols, total };
   }
 
-  async getAvailableEvtols(): Promise<eVTOL[]> {
-    return db.eVTOL.findMany({
-      where: { state: State.IDLE, battery: { gte: 25 } },
-    });
+  async getAvailableEvtols(skip?: number, take?: number): Promise<{ data: eVTOL[]; total: number }> {
+    const [evtols, total] = await Promise.all([
+      db.eVTOL.findMany({
+        where: { state: State.IDLE, battery: { gte: 25 } },
+        skip: skip || 0,
+        take: take || 10,
+        orderBy: { id: "desc" },
+      }),
+      db.eVTOL.count({ where: { state: State.IDLE, battery: { gte: 25 } } }),
+    ]);
+    return { data: evtols, total };
   }
 
   async registereVTOL(data: RegistereVTOLDto): Promise<eVTOL> {

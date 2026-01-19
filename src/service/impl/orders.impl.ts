@@ -74,26 +74,39 @@ export class OrderImpl implements orderServices {
 
 
   async getUserOrders(
-    userId: number
-  ): Promise<(Order & { items: OrderItem[] })[]> {
-    return db.order.findMany({
-      where: { userId },
-      include: { items: true },
-      orderBy: { orderDate: "desc" },
-    });
+    userId: number,
+    skip?: number,
+    take?: number
+  ): Promise<{ data: (Order & { items: OrderItem[] })[]; total: number }> {
+    const [orders, total] = await Promise.all([
+      db.order.findMany({
+        where: { userId },
+        include: { items: true },
+        orderBy: { orderDate: "desc" },
+        skip: skip || 0,
+        take: take || 10,
+      }),
+      db.order.count({ where: { userId } }),
+    ]);
+    return { data: orders, total };
   }
 
- 
-  async getAllOrders(): Promise<(Order & { items: OrderItem[] })[]> {
-    return db.order.findMany({
-      include: {
-        items: true,
-        user: {
-          select: { id: true, email: true, firstName: true, lastName: true },
+  async getAllOrders(skip?: number, take?: number): Promise<{ data: (Order & { items: OrderItem[] })[]; total: number }> {
+    const [orders, total] = await Promise.all([
+      db.order.findMany({
+        include: {
+          items: true,
+          user: {
+            select: { id: true, email: true, firstName: true, lastName: true },
+          },
         },
-      },
-      orderBy: { orderDate: "desc" },
-    });
+        orderBy: { orderDate: "desc" },
+        skip: skip || 0,
+        take: take || 10,
+      }),
+      db.order.count(),
+    ]);
+    return { data: orders, total };
   }
 
 //   async cancelOrder(orderId: number, userId: number): Promise<void> {

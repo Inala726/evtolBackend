@@ -2,6 +2,10 @@
 import { Request, Response, NextFunction } from "express";
 import { OrderImpl } from "../service/impl/orders.impl";
 import { PlaceOrderDto } from "../dtos/order.dto";
+import {
+  PaginationQueryDto,
+  PaginatedResponseDto,
+} from "../dtos/pagination.dto";
 
 export class OrderController {
   private service = new OrderImpl();
@@ -31,8 +35,22 @@ export class OrderController {
   ): Promise<void> => {
     try {
       const userId = (req as any).user.id as number;
-      const orders = await this.service.getUserOrders(userId);
-      res.status(200).json(orders);
+      const pagination = new PaginationQueryDto(
+        req.query.page,
+        req.query.limit
+      );
+      const { data, total } = await this.service.getUserOrders(
+        userId,
+        pagination.getSkip(),
+        pagination.limit
+      );
+      const response = new PaginatedResponseDto(
+        data,
+        pagination.page,
+        pagination.limit,
+        total
+      );
+      res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -77,8 +95,21 @@ export class OrderController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const orders = await this.service.getAllOrders();
-      res.status(200).json(orders);
+      const pagination = new PaginationQueryDto(
+        req.query.page,
+        req.query.limit
+      );
+      const { data, total } = await this.service.getAllOrders(
+        pagination.getSkip(),
+        pagination.limit
+      );
+      const response = new PaginatedResponseDto(
+        data,
+        pagination.page,
+        pagination.limit,
+        total
+      );
+      res.status(200).json(response);
     } catch (err) {
       next(err);
     }

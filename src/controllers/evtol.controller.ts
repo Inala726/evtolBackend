@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { eVTOLServicesImplementation } from "../service/impl/evtol.impl";
 import { RegistereVTOLDto } from "../dtos/evtol.dto";
 import { LoadEVTOLDto } from "../dtos/loadEvtol.dto";
+import {
+  PaginationQueryDto,
+  PaginatedResponseDto,
+} from "../dtos/pagination.dto";
 
 export class EVTOLController {
   private service = new eVTOLServicesImplementation();
@@ -28,8 +32,21 @@ export class EVTOLController {
     next: NextFunction
   ) => {
     try {
-      const list = await this.service.getAllEvtols();
-      res.status(200).json(list);
+      const pagination = new PaginationQueryDto(
+        req.query.page,
+        req.query.limit
+      );
+      const { data, total } = await this.service.getAllEvtols(
+        pagination.getSkip(),
+        pagination.limit
+      );
+      const response = new PaginatedResponseDto(
+        data,
+        pagination.page,
+        pagination.limit,
+        total
+      );
+      res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -42,8 +59,21 @@ export class EVTOLController {
     next: NextFunction
   ) => {
     try {
-      const list = await this.service.getAvailableEvtols();
-      res.status(200).json(list);
+      const pagination = new PaginationQueryDto(
+        req.query.page,
+        req.query.limit
+      );
+      const { data, total } = await this.service.getAvailableEvtols(
+        pagination.getSkip(),
+        pagination.limit
+      );
+      const response = new PaginatedResponseDto(
+        data,
+        pagination.page,
+        pagination.limit,
+        total
+      );
+      res.status(200).json(response);
     } catch (err) {
       next(err);
     }
